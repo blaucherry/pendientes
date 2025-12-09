@@ -376,31 +376,47 @@
     </section>
 
     <p class="footer-note">
-      Clic sobre una tarea para marcarla hecha. La ✕ la borra. Se guarda en esta compu con amor.
+      Clic sobre una tarea para marcarla hecha. La ✕ la borra. Se sincroniza con Firebase para que ambos lo vean.
     </p>
   </main>
 
-  <script>
+  <!-- Script con Firebase + Firestore -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      query,
+      orderBy,
+      onSnapshot,
+      updateDoc,
+      deleteDoc,
+      doc,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
+
+    // Configuración de tu app (la que te dio Firebase)
+    const firebaseConfig = {
+      apiKey: "AIzaSyCddnh4gdFiU0E-FN9erPd0BT-jWAN6iM",
+      authDomain: "pendientes-cozy.firebaseapp.com",
+      projectId: "pendientes-cozy",
+      storageBucket: "pendientes-cozy.firebasestorage.app",
+      messagingSenderId: "677687685606",
+      appId: "1:677687685606:web:788d0104efcc7fff9b6627"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
     const COLUMNS = ["vianey", "alexis", "juntos"];
 
-    function loadTasks() {
-      try {
-        const saved = JSON.parse(localStorage.getItem("cozyTasks") || "{}");
-        return {
-          vianey: saved.vianey || [],
-          alexis: saved.alexis || [],
-          juntos: saved.juntos || []
-        };
-      } catch (e) {
-        return { vianey: [], alexis: [], juntos: [] };
-      }
-    }
-
-    let tasks = loadTasks();
-
-    function saveTasks() {
-      localStorage.setItem("cozyTasks", JSON.stringify(tasks));
-    }
+    // Estructura en memoria agrupada por columna
+    const tasksByColumn = {
+      vianey: [],
+      alexis: [],
+      juntos: []
+    };
 
     function renderColumn(column) {
       const columnWrapper = document.querySelector(`.tasks[data-column="${column}"]`);
@@ -409,7 +425,7 @@
       const listEl = columnWrapper.querySelector(".task-list");
       listEl.innerHTML = "";
 
-      tasks[column].forEach((task, index) => {
+      tasksByColumn[column].forEach((task) => {
         const li = document.createElement("li");
         li.className = "task-item";
         if (task.done) li.classList.add("done");
@@ -426,19 +442,23 @@
         li.appendChild(span);
         li.appendChild(delBtn);
 
-        // Toggle done al hacer clic
-        li.addEventListener("click", () => {
-          tasks[column][index].done = !tasks[column][index].done;
-          saveTasks();
-          renderColumn(column);
+        // Toggle done
+        li.addEventListener("click", async () => {
+          try {
+            await updateDoc(doc(db, "tasks", task.id), { done: !task.done });
+          } catch (e) {
+            console.error("Error al actualizar tarea", e);
+          }
         });
 
-        // Borrar (sin disparar el toggle)
-        delBtn.addEventListener("click", (e) => {
+        // Borrar sin hacer toggle
+        delBtn.addEventListener("click", async (e) => {
           e.stopPropagation();
-          tasks[column].splice(index, 1);
-          saveTasks();
-          renderColumn(column);
+          try {
+            await deleteDoc(doc(db, "tasks", task.id));
+          } catch (e) {
+            console.error("Error al borrar tarea", e);
+          }
         });
 
         listEl.appendChild(li);
@@ -449,32 +469,64 @@
       COLUMNS.forEach(renderColumn);
     }
 
+    // Escucha en tiempo real de la colección "tasks"
+    function setupRealtime() {
+      const tasksRef = collection(db, "tasks");
+      const q = query(tasksRef, orderBy("createdAt", "asc"));
+
+      onSnapshot(q, (snapshot) => {
+        // Reiniciar arreglo
+        tasksByColumn.vianey = [];
+        tasksByColumn.alexis = [];
+        tasksByColumn.juntos = [];
+
+        snapshot.forEach((docSnap) => {
+          const data = docSnap.data();
+          if (!COLUMNS.includes(data.column)) return;
+
+          tasksByColumn[data.column].push({
+            id: docSnap.id,
+            text: data.text,
+            done: !!data.done
+          });
+        });
+
+        renderAll();
+      });
+    }
+
+    async function addTask(column, text) {
+      const tasksRef = collection(db, "tasks");
+      try {
+        await addDoc(tasksRef, {
+          column,
+          text,
+          done: false,
+          createdAt: serverTimestamp()
+        });
+      } catch (e) {
+        console.error("Error al agregar tarea", e);
+      }
+    }
+
     window.addEventListener("DOMContentLoaded", () => {
-      renderAll();
+      setupRealtime();
 
       document.querySelectorAll(".task-input").forEach((input) => {
         const column = input.dataset.column;
 
-        input.addEventListener("keydown", (e) => {
+        input.addEventListener("keydown", async (e) => {
           if (e.key === "Enter") {
             e.preventDefault();
             const value = input.value.trim();
             if (!value) return;
 
-            tasks[column].push({ text: value, done: false });
+            await addTask(column, value);
             input.value = "";
-            saveTasks();
-            renderColumn(column);
           }
         });
       });
     });
-
-    // 💡 Nota:
-    // Ahora mismo esto es local (cada quien tiene sus tareas en su navegador).
-    // Para que sea TIEMPO REAL entre tú y Alexis,
-    // habría que guardar las tareas en una base de datos en la nube (ej. Firebase)
-    // y en vez de usar localStorage, leer/escribir ahí.
   </script>
 </body>
 </html>
