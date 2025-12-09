@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <title>Pendientes Cozy — Vianey & Alexis</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #f5efe6;
+      --bg-card: #fff7f0;
+      --text-main: #3b3b3b;
+      --accent: #c28b6e;
+      --vianey: #f9d9e5;
+      --alexis: #d9e8ff;
+      --juntos: #e7ddff;
+      --shadow-soft: 0 12px 25px rgba(0, 0, 0, 0.08);
+      --radius: 20px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      background: radial-gradient(circle at top, #fdf3e7 0, #f5efe6 40%, #ebdfd1 100%);
+      font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text-main);
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 2rem 1rem 3rem;
+    }
+
+    .board {
+      width: 100%;
+      max-width: 1100px;
+      background: rgba(255, 247, 240, 0.92);
+      border-radius: 28px;
+      box-shadow: var(--shadow-soft);
+      padding: 2rem 2.5rem 2.5rem;
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.7);
+    }
+
+    .board-header {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+      margin-bottom: 1.8rem;
+    }
+
+    .board-title {
+      font-size: 1.6rem;
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .board-title span.heart {
+      font-size: 1.4rem;
+    }
+
+    .board-subtitle {
+      font-size: 0.9rem;
+      color: #7a6b5b;
+    }
+
+    .chips {
+      margin-top: 0.4rem;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.4rem;
+    }
+
+    .chip {
+      font-size: 0.7rem;
+      padding: 0.15rem 0.6rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.9);
+      border: 1px dashed rgba(194, 139, 110, 0.5);
+      color: #7a6b5b;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .card {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      padding: 1.2rem 1.2rem 1rem;
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      opacity: 0.3;
+      pointer-events: none;
+      background-image:
+        radial-gradient(circle at 10% 0%, rgba(255, 255, 255, 0.95) 0, transparent 45%),
+        radial-gradient(circle at 90% 100%, rgba(255, 255, 255, 0.9) 0, transparent 55%);
+    }
+
+    .card-header {
+      position: relative;
+      z-index: 1;
+    }
+
+    .label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #8b6c55;
+      margin-bottom: 0.1rem;
+    }
+
+    .name {
+      font-size: 1.15rem;
+      font-weight: 600;
+      display: flex;
+      align-items: baseline;
+      gap: 0.35rem;
+    }
+
+    .name span.small {
+      font-size: 0.8rem;
+      font-weight: 400;
+      color: #7a6b5b;
+    }
+
+    .mood {
+      font-size: 0.75rem;
+      color: #9b8470;
+    }
+
+    textarea {
+      position: relative;
+      z-index: 1;
+      resize: vertical;
+      min-height: 140px;
+      border-radius: 16px;
+      border: 1px dashed rgba(180, 150, 120, 0.7);
+      padding: 0.8rem 0.9rem;
+      font-family: inherit;
+      font-size: 0.9rem;
+      background: rgba(255, 255, 255, 0.9);
+      outline: none;
+      color: var(--text-main);
+      transition: box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+    }
+
+    textarea::placeholder {
+      color: #b6a69a;
+      font-size: 0.85rem;
+    }
+
+    textarea:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(194, 139, 110, 0.28);
+      background: #fffdfa;
+    }
+
+    .card-vianey {
+      background: linear-gradient(135deg, #fef5fb, var(--vianey));
+    }
+
+    .card-alexis {
+      background: linear-gradient(135deg, #f3f7ff, var(--alexis));
+    }
+
+    .card-juntos {
+      background: linear-gradient(135deg, #f8f4ff, var(--juntos));
+      grid-column: 1 / -1;
+      max-width: 520px;
+      justify-self: center;
+    }
+
+    .card-tag {
+      font-size: 0.7rem;
+      padding: 0.15rem 0.55rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.8);
+      color: #7a6b5b;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      margin-top: 0.15rem;
+    }
+
+    .card-tag-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+    }
+
+    .footer-note {
+      margin-top: 1.8rem;
+      font-size: 0.75rem;
+      color: #8f7b68;
+      text-align: right;
+      opacity: 0.8;
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 1.5rem 0.75rem 2.5rem;
+      }
+
+      .board {
+        padding: 1.6rem 1.3rem 2rem;
+      }
+
+      .board-title {
+        font-size: 1.3rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="board">
+    <header class="board-header">
+      <h1 class="board-title">
+        Nuestro mini board cozy
+        <span class="heart">✿</span>
+      </h1>
+      <p class="board-subtitle">
+        Espacio seguro para ir tirando pendientes, ideas random y cositas que no queremos olvidar.
+      </p>
+      <div class="chips">
+        <span class="chip">to-do suaves</span>
+        <span class="chip">cosas de la semana</span>
+        <span class="chip">planes futuros</span>
+      </div>
+    </header>
+
+    <section class="grid">
+      <!-- Columna Vianey -->
+      <article class="card card-vianey">
+        <div class="card-header">
+          <p class="label">Lista</p>
+          <h2 class="name">Vianey <span class="small">· cosas mías</span></h2>
+          <p class="mood">Pendientes solo tuyos: escuela, trabajo, self-care, etc.</p>
+          <div class="card-tag">
+            <span class="card-tag-dot"></span>
+            modo enfoque suave
+          </div>
+        </div>
+        <textarea
+          placeholder="- Tarea diplomado\n- Cita importante\n- Recordatorios para mí ✨"></textarea>
+      </article>
+
+      <!-- Columna Alexis -->
+      <article class="card card-alexis">
+        <div class="card-header">
+          <p class="label">Lista</p>
+          <h2 class="name">Alexis <span class="small">· cositas suyas</span></h2>
+          <p class="mood">Pendientes que son más de él: proyectos, cosas que le quieres recordar, etc.</p>
+          <div class="card-tag">
+            <span class="card-tag-dot"></span>
+            notas para él
+          </div>
+        </div>
+        <textarea
+          placeholder="- Recordarle algo\n- Ideas de regalitos\n- Cosas que está construyendo 🛠️"></textarea>
+      </article>
+
+      <!-- Columna Juntos -->
+      <article class="card card-juntos">
+        <div class="card-header">
+          <p class="label">Lista</p>
+          <h2 class="name">Juntos <span class="small">· nosotros dos</span></h2>
+          <p class="mood">Planes, pendientes y sueños compartidos. Aquí van las cosas de team V&A.</p>
+          <div class="card-tag">
+            <span class="card-tag-dot"></span>
+            mood pareja
+          </div>
+        </div>
+        <textarea
+          placeholder="- Plan de fin de semana\n- Pelis/series por ver\n- Cosas que queremos lograr juntos 💫"></textarea>
+      </article>
+    </section>
+
+    <p class="footer-note">
+      Puedes editar libremente este archivo si quieres cambiar colores, textos o agregar más columnas.
+    </p>
+  </main>
+</body>
+</html>
