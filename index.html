@@ -148,33 +148,6 @@
       color: #9b8470;
     }
 
-    textarea {
-      position: relative;
-      z-index: 1;
-      resize: vertical;
-      min-height: 140px;
-      border-radius: 16px;
-      border: 1px dashed rgba(180, 150, 120, 0.7);
-      padding: 0.8rem 0.9rem;
-      font-family: inherit;
-      font-size: 0.9rem;
-      background: rgba(255, 255, 255, 0.9);
-      outline: none;
-      color: var(--text-main);
-      transition: box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
-    }
-
-    textarea::placeholder {
-      color: #b6a69a;
-      font-size: 0.85rem;
-    }
-
-    textarea:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 2px rgba(194, 139, 110, 0.28);
-      background: #fffdfa;
-    }
-
     .card-vianey {
       background: linear-gradient(135deg, #fef5fb, var(--vianey));
     }
@@ -207,6 +180,94 @@
       height: 6px;
       border-radius: 50%;
       background: var(--accent);
+    }
+
+    /* -------- LISTAS DE TAREAS -------- */
+
+    .tasks {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      margin-top: 0.5rem;
+    }
+
+    .task-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      max-height: 210px;
+      overflow-y: auto;
+    }
+
+    .task-item {
+      font-size: 0.9rem;
+      padding: 0.35rem 0.7rem;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.92);
+      border: 1px solid rgba(180, 150, 120, 0.4);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 0.4rem;
+      margin-bottom: 0.25rem;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.1s ease, opacity 0.15s ease;
+    }
+
+    .task-item:hover {
+      transform: translateY(-1px);
+      background: #fffdfa;
+    }
+
+    .task-item.done {
+      opacity: 0.6;
+      text-decoration: line-through;
+    }
+
+    .task-text {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .task-delete {
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-size: 1.05rem;
+      line-height: 1;
+      padding: 0;
+      opacity: 0.6;
+    }
+
+    .task-delete:hover {
+      opacity: 1;
+    }
+
+    .task-input {
+      position: relative;
+      z-index: 1;
+      border-radius: 999px;
+      border: 1px dashed rgba(180, 150, 120, 0.7);
+      padding: 0.45rem 0.8rem;
+      font-family: inherit;
+      font-size: 0.85rem;
+      background: rgba(255, 255, 255, 0.9);
+      outline: none;
+      transition: box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+    }
+
+    .task-input::placeholder {
+      color: #b6a69a;
+    }
+
+    .task-input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 2px rgba(194, 139, 110, 0.28);
+      background: #fffdfa;
     }
 
     .footer-note {
@@ -261,8 +322,14 @@
             modo enfoque suave
           </div>
         </div>
-        <textarea
-          placeholder="- Tarea diplomado\n- Cita importante\n- Recordatorios para mí ✨"></textarea>
+        <div class="tasks" data-column="vianey">
+          <ul class="task-list"></ul>
+          <input
+            type="text"
+            class="task-input"
+            data-column="vianey"
+            placeholder="Escribe un pendiente y presiona Enter ✨" />
+        </div>
       </article>
 
       <!-- Columna Alexis -->
@@ -276,8 +343,14 @@
             notas para él
           </div>
         </div>
-        <textarea
-          placeholder="- Recordarle algo\n- Ideas de regalitos\n- Cosas que está construyendo 🛠️"></textarea>
+        <div class="tasks" data-column="alexis">
+          <ul class="task-list"></ul>
+          <input
+            type="text"
+            class="task-input"
+            data-column="alexis"
+            placeholder="Pendiente para él y Enter 🛠️" />
+        </div>
       </article>
 
       <!-- Columna Juntos -->
@@ -291,14 +364,117 @@
             mood pareja
           </div>
         </div>
-        <textarea
-          placeholder="- Plan de fin de semana\n- Pelis/series por ver\n- Cosas que queremos lograr juntos 💫"></textarea>
+        <div class="tasks" data-column="juntos">
+          <ul class="task-list"></ul>
+          <input
+            type="text"
+            class="task-input"
+            data-column="juntos"
+            placeholder="Plan juntos + Enter 💫" />
+        </div>
       </article>
     </section>
 
     <p class="footer-note">
-      Puedes editar libremente este archivo si quieres cambiar colores, textos o agregar más columnas.
+      Clic sobre una tarea para marcarla hecha. La ✕ la borra. Se guarda en esta compu con amor.
     </p>
   </main>
+
+  <script>
+    const COLUMNS = ["vianey", "alexis", "juntos"];
+
+    function loadTasks() {
+      try {
+        const saved = JSON.parse(localStorage.getItem("cozyTasks") || "{}");
+        return {
+          vianey: saved.vianey || [],
+          alexis: saved.alexis || [],
+          juntos: saved.juntos || []
+        };
+      } catch (e) {
+        return { vianey: [], alexis: [], juntos: [] };
+      }
+    }
+
+    let tasks = loadTasks();
+
+    function saveTasks() {
+      localStorage.setItem("cozyTasks", JSON.stringify(tasks));
+    }
+
+    function renderColumn(column) {
+      const columnWrapper = document.querySelector(`.tasks[data-column="${column}"]`);
+      if (!columnWrapper) return;
+
+      const listEl = columnWrapper.querySelector(".task-list");
+      listEl.innerHTML = "";
+
+      tasks[column].forEach((task, index) => {
+        const li = document.createElement("li");
+        li.className = "task-item";
+        if (task.done) li.classList.add("done");
+
+        const span = document.createElement("span");
+        span.className = "task-text";
+        span.textContent = task.text;
+
+        const delBtn = document.createElement("button");
+        delBtn.type = "button";
+        delBtn.className = "task-delete";
+        delBtn.textContent = "×";
+
+        li.appendChild(span);
+        li.appendChild(delBtn);
+
+        // Toggle done al hacer clic
+        li.addEventListener("click", () => {
+          tasks[column][index].done = !tasks[column][index].done;
+          saveTasks();
+          renderColumn(column);
+        });
+
+        // Borrar (sin disparar el toggle)
+        delBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          tasks[column].splice(index, 1);
+          saveTasks();
+          renderColumn(column);
+        });
+
+        listEl.appendChild(li);
+      });
+    }
+
+    function renderAll() {
+      COLUMNS.forEach(renderColumn);
+    }
+
+    window.addEventListener("DOMContentLoaded", () => {
+      renderAll();
+
+      document.querySelectorAll(".task-input").forEach((input) => {
+        const column = input.dataset.column;
+
+        input.addEventListener("keydown", (e) => {
+          if (e.key === "Enter") {
+            e.preventDefault();
+            const value = input.value.trim();
+            if (!value) return;
+
+            tasks[column].push({ text: value, done: false });
+            input.value = "";
+            saveTasks();
+            renderColumn(column);
+          }
+        });
+      });
+    });
+
+    // 💡 Nota:
+    // Ahora mismo esto es local (cada quien tiene sus tareas en su navegador).
+    // Para que sea TIEMPO REAL entre tú y Alexis,
+    // habría que guardar las tareas en una base de datos en la nube (ej. Firebase)
+    // y en vez de usar localStorage, leer/escribir ahí.
+  </script>
 </body>
 </html>
