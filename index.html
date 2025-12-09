@@ -91,11 +91,25 @@
       color: #7a6b5b;
     }
 
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      gap: 1.5rem;
-    }
+   .grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(360px, 1fr)); /* 👉 dos columnas más anchas */
+  column-gap: 3rem;   /* 👉 más espacio entre rosa y azul */
+  row-gap: 2.2rem;    /* 👉 espacio cómodo con el morado de abajo */
+  align-items: flex-start;
+}
+@media (max-width: 900px) {
+  .grid {
+    grid-template-columns: 1fr;  /* 👉 en cel, una columna debajo de otra */
+    gap: 1.5rem;
+  }
+
+  .card-juntos {
+    max-width: 100%;
+    justify-self: stretch;
+  }
+}
+
 
     .card {
       background: var(--bg-card);
