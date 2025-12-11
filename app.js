@@ -13,7 +13,7 @@ import {
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
 
-// ⚠️ Usa la misma config que ya tenías en tu proyecto
+// Config de tu proyecto
 const firebaseConfig = {
   apiKey: "AIzaSyCddnh4gdFiU0E-FN9erPd0BT-jWAN6iM",
   authDomain: "pendientes-cozy.firebaseapp.com",
@@ -26,7 +26,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// ---------- Modelo en memoria ----------
+// ---------- Modelo To-Do ----------
 
 const COLUMNS = ["vianey", "alexis", "juntos"];
 
@@ -35,19 +35,6 @@ const tasksByColumn = {
   alexis: [],
   juntos: []
 };
-
-let allTasks = []; // para el calendario
-
-// calendario
-const today = new Date();
-let currentYear = today.getFullYear();
-let currentMonth = today.getMonth();
-
-let daysContainer;
-let monthLabel;
-let detailContainer;
-
-// ---------- Helpers ----------
 
 function formatDateLabel(dateStr) {
   if (!dateStr) return "";
@@ -58,12 +45,6 @@ function formatDateLabel(dateStr) {
     month: "short"
   });
 }
-
-function getTasksForDay(dateStr) {
-  return allTasks.filter((t) => t.dueDate === dateStr);
-}
-
-// ---------- Render columnas ----------
 
 function renderColumn(column) {
   const container = document.querySelector(`.tasks[data-column="${column}"]`);
@@ -100,7 +81,6 @@ function renderColumn(column) {
     li.appendChild(main);
     li.appendChild(delBtn);
 
-    // toggle done
     li.addEventListener("click", async () => {
       try {
         await updateDoc(doc(db, "tasks", task.id), { done: !task.done });
@@ -109,7 +89,6 @@ function renderColumn(column) {
       }
     });
 
-    // borrar sin toggle
     delBtn.addEventListener("click", async (evt) => {
       evt.stopPropagation();
       try {
@@ -127,171 +106,6 @@ function renderAllColumns() {
   COLUMNS.forEach(renderColumn);
 }
 
-// ---------- Calendario ----------
-
-function renderDayDetail(dateStr, tasks) {
-  if (!detailContainer) return;
-  detailContainer.innerHTML = "";
-
-  if (!dateStr) {
-    const p = document.createElement("p");
-    p.className = "calendar-empty";
-    p.textContent = "No hay pendientes con fecha en este mes.";
-    detailContainer.appendChild(p);
-    return;
-  }
-
-  const [y, m, d] = dateStr.split("-").map(Number);
-  const date = new Date(y, m - 1, d);
-
-  const title = document.createElement("h3");
-  title.className = "calendar-detail-title";
-  title.textContent = date.toLocaleDateString("es-MX", {
-    weekday: "long",
-    day: "2-digit",
-    month: "long"
-  });
-
-  detailContainer.appendChild(title);
-
-  if (!tasks.length) {
-    const p = document.createElement("p");
-    p.className = "calendar-empty";
-    p.textContent = "No hay pendientes con fecha este día.";
-    detailContainer.appendChild(p);
-    return;
-  }
-
-  const ul = document.createElement("ul");
-  ul.className = "calendar-task-list";
-
-  tasks.forEach((task) => {
-    const li = document.createElement("li");
-    li.className = "calendar-task";
-    if (task.done) li.classList.add("calendar-task--done");
-
-    const chip = document.createElement("span");
-    chip.className = "calendar-task-chip";
-    if (task.column === "vianey") chip.classList.add("chip-vianey");
-    else if (task.column === "alexis") chip.classList.add("chip-alexis");
-    else if (task.column === "juntos") chip.classList.add("chip-juntos");
-    else chip.classList.add("chip-neutral");
-
-    chip.textContent =
-      task.column === "vianey"
-        ? "Vianey"
-        : task.column === "alexis"
-        ? "Alexis"
-        : task.column === "juntos"
-        ? "Juntos"
-        : "Otro";
-
-    const textSpan = document.createElement("span");
-    textSpan.className = "calendar-task-text";
-    textSpan.textContent = task.text;
-
-    li.appendChild(chip);
-    li.appendChild(textSpan);
-
-    ul.appendChild(li);
-  });
-
-  detailContainer.appendChild(ul);
-}
-
-function renderCalendar() {
-  if (!daysContainer || !monthLabel) return;
-
-  daysContainer.innerHTML = "";
-
-  const firstDay = new Date(currentYear, currentMonth, 1);
-  const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-
-  const monthName = firstDay.toLocaleDateString("es-MX", {
-    month: "long",
-    year: "numeric"
-  });
-  monthLabel.textContent = monthName;
-
-  // Lunes = 0
-  const startWeekday = (firstDay.getDay() + 6) % 7;
-
-  for (let i = 0; i < startWeekday; i++) {
-    const empty = document.createElement("div");
-    empty.className = "calendar-day calendar-day--empty";
-    daysContainer.appendChild(empty);
-  }
-
-  const todayStr = [
-    today.getFullYear(),
-    String(today.getMonth() + 1).padStart(2, "0"),
-    String(today.getDate()).padStart(2, "0")
-  ].join("-");
-
-  for (let day = 1; day <= daysInMonth; day++) {
-    const dateStr = [
-      currentYear,
-      String(currentMonth + 1).padStart(2, "0"),
-      String(day).padStart(2, "0")
-    ].join("-");
-
-    const dayTasks = getTasksForDay(dateStr);
-
-    const btn = document.createElement("button");
-    btn.type = "button";
-    btn.className = "calendar-day";
-    if (dayTasks.length) btn.classList.add("calendar-day--has-tasks");
-    if (dateStr === todayStr) btn.classList.add("calendar-day--today");
-
-    const numSpan = document.createElement("span");
-    numSpan.className = "calendar-day-number";
-    numSpan.textContent = day;
-    btn.appendChild(numSpan);
-
-    if (dayTasks.length) {
-      const dots = document.createElement("div");
-      dots.className = "calendar-dots";
-
-      const columnsSeen = new Set(dayTasks.map((t) => t.column));
-      if (columnsSeen.has("vianey")) {
-        const dot = document.createElement("span");
-        dot.className = "calendar-dot calendar-dot--vianey";
-        dots.appendChild(dot);
-      }
-      if (columnsSeen.has("alexis")) {
-        const dot = document.createElement("span");
-        dot.className = "calendar-dot calendar-dot--alexis";
-        dots.appendChild(dot);
-      }
-      if (columnsSeen.has("juntos")) {
-        const dot = document.createElement("span");
-        dot.className = "calendar-dot calendar-dot--juntos";
-        dots.appendChild(dot);
-      }
-      btn.appendChild(dots);
-    }
-
-    btn.addEventListener("click", () => {
-      document
-        .querySelectorAll(".calendar-day--selected")
-        .forEach((el) => el.classList.remove("calendar-day--selected"));
-      btn.classList.add("calendar-day--selected");
-      renderDayDetail(dateStr, dayTasks);
-    });
-
-    daysContainer.appendChild(btn);
-  }
-
-  // detalle por defecto: hoy (si está en el mes) o vacío
-  const inSameMonth =
-    currentYear === today.getFullYear() && currentMonth === today.getMonth();
-  const defaultDate = inSameMonth ? todayStr : null;
-  const defaultTasks = defaultDate ? getTasksForDay(defaultDate) : [];
-  renderDayDetail(defaultDate, defaultTasks);
-}
-
-// ---------- Firestore ----------
-
 async function addTask(column, text, dueDate) {
   const tasksRef = collection(db, "tasks");
   try {
@@ -307,7 +121,7 @@ async function addTask(column, text, dueDate) {
   }
 }
 
-function setupRealtime() {
+function setupRealtimeTasks() {
   const tasksRef = collection(db, "tasks");
   const q = query(tasksRef, orderBy("createdAt", "asc"));
 
@@ -315,7 +129,6 @@ function setupRealtime() {
     tasksByColumn.vianey = [];
     tasksByColumn.alexis = [];
     tasksByColumn.juntos = [];
-    allTasks = [];
 
     snapshot.forEach((docSnap) => {
       const data = docSnap.data();
@@ -331,24 +144,16 @@ function setupRealtime() {
       };
 
       tasksByColumn[column].push(task);
-      if (task.dueDate) {
-        allTasks.push(task);
-      }
     });
 
     renderAllColumns();
-    renderCalendar();
   });
 }
 
-// ---------- Inputs + navegación calendario ----------
-
-function setupInputsAndCalendarNav() {
+function setupTaskInputs() {
   COLUMNS.forEach((column) => {
     const input = document.querySelector(`.task-input[data-column="${column}"]`);
-    const dateInput = document.querySelector(
-      `.task-date[data-column="${column}"]`
-    );
+    const dateInput = document.querySelector(`.task-date[data-column="${column}"]`);
     const addBtn = document.querySelector(`.task-add[data-column="${column}"]`);
 
     if (!input || !addBtn) return;
@@ -356,10 +161,11 @@ function setupInputsAndCalendarNav() {
     const handleAdd = async () => {
       const text = input.value.trim();
       if (!text) return;
+
       const dueDate = dateInput ? dateInput.value || null : null;
       await addTask(column, text, dueDate);
       input.value = "";
-      // dejamos la fecha para poder agregar varios con la misma
+      // dejamos la fecha para poder agregar varias con la misma
     };
 
     input.addEventListener("keydown", (e) => {
@@ -371,39 +177,201 @@ function setupInputsAndCalendarNav() {
 
     addBtn.addEventListener("click", handleAdd);
   });
+}
 
-  const prevBtn = document.querySelector("[data-cal-prev]");
-  const nextBtn = document.querySelector("[data-cal-next]");
+// ---------- Sidebar / navegación de pantallas ----------
 
-  if (prevBtn && nextBtn) {
-    prevBtn.addEventListener("click", () => {
-      currentMonth -= 1;
-      if (currentMonth < 0) {
-        currentMonth = 11;
-        currentYear -= 1;
+function setupNav() {
+  const navItems = document.querySelectorAll(".nav-item");
+  const screens = document.querySelectorAll(".screen");
+
+  navItems.forEach((item) => {
+    item.addEventListener("click", () => {
+      const target = item.dataset.screen;
+
+      navItems.forEach((i) => i.classList.remove("active"));
+      item.classList.add("active");
+
+      screens.forEach((screen) => {
+        const isTarget = screen.classList.contains(`screen-${target}`);
+        screen.classList.toggle("active", isTarget);
+      });
+    });
+  });
+}
+
+// ---------- Planning diario (localStorage) ----------
+
+function setupDayPlanner() {
+  const container = document.getElementById("day-planner");
+  if (!container) return;
+
+  const saved = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("cozyDayPlan") || "{}");
+    } catch (e) {
+      return {};
+    }
+  })();
+
+  const savePlan = (hour, text) => {
+    const current = (() => {
+      try {
+        return JSON.parse(localStorage.getItem("cozyDayPlan") || "{}");
+      } catch (e) {
+        return {};
       }
-      renderCalendar();
+    })();
+    current[hour] = text;
+    localStorage.setItem("cozyDayPlan", JSON.stringify(current));
+  };
+
+  const startHour = 6;
+  const endHour = 22;
+
+  for (let h = startHour; h <= endHour; h++) {
+    const hourLabel = `${String(h).padStart(2, "0")}:00`;
+
+    const row = document.createElement("div");
+    row.className = "day-planner-row";
+
+    const label = document.createElement("div");
+    label.className = "day-planner-hour";
+    label.textContent = hourLabel;
+
+    const input = document.createElement("input");
+    input.type = "text";
+    input.className = "day-planner-input";
+    input.dataset.hour = hourLabel;
+    input.placeholder = "Añade algo suave aquí ✨";
+    if (saved[hourLabel]) input.value = saved[hourLabel];
+
+    input.addEventListener("change", () => {
+      savePlan(hourLabel, input.value);
     });
 
-    nextBtn.addEventListener("click", () => {
-      currentMonth += 1;
-      if (currentMonth > 11) {
-        currentMonth = 0;
-        currentYear += 1;
-      }
-      renderCalendar();
-    });
+    row.appendChild(label);
+    row.appendChild(input);
+    container.appendChild(row);
   }
+}
+
+// ---------- Pomodoro ----------
+
+let pomoWork = 25 * 60;
+let pomoBreak = 5 * 60;
+let pomoRemaining = pomoWork;
+let pomoMode = "focus"; // "focus" | "break"
+let pomoRunning = false;
+let pomoInterval = null;
+
+let pomoTimeEl;
+let pomoModeLabelEl;
+let pomoStartBtn;
+let pomoResetBtn;
+
+function formatTime(sec) {
+  const m = Math.floor(sec / 60);
+  const s = sec % 60;
+  return `${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+}
+
+function updatePomodoroDisplay() {
+  if (!pomoTimeEl || !pomoModeLabelEl) return;
+  pomoTimeEl.textContent = formatTime(pomoRemaining);
+  pomoModeLabelEl.textContent = pomoMode === "focus" ? "Enfoque" : "Descanso";
+}
+
+function switchPomodoroMode() {
+  if (pomoMode === "focus") {
+    pomoMode = "break";
+    pomoRemaining = pomoBreak;
+  } else {
+    pomoMode = "focus";
+    pomoRemaining = pomoWork;
+  }
+  updatePomodoroDisplay();
+}
+
+function startPomodoro() {
+  if (pomoRunning) return;
+  pomoRunning = true;
+  if (pomoStartBtn) pomoStartBtn.textContent = "Pausa";
+
+  pomoInterval = setInterval(() => {
+    if (pomoRemaining > 0) {
+      pomoRemaining -= 1;
+      updatePomodoroDisplay();
+    } else {
+      switchPomodoroMode();
+    }
+  }, 1000);
+}
+
+function pausePomodoro() {
+  pomoRunning = false;
+  if (pomoStartBtn) pomoStartBtn.textContent = "Reanudar";
+  if (pomoInterval) {
+    clearInterval(pomoInterval);
+    pomoInterval = null;
+  }
+}
+
+function resetPomodoro() {
+  pomoRunning = false;
+  if (pomoInterval) {
+    clearInterval(pomoInterval);
+    pomoInterval = null;
+  }
+  pomoMode = "focus";
+  pomoRemaining = pomoWork;
+  if (pomoStartBtn) pomoStartBtn.textContent = "Iniciar";
+  updatePomodoroDisplay();
+}
+
+function setupPomodoro() {
+  pomoTimeEl = document.getElementById("pomodoro-time");
+  pomoModeLabelEl = document.getElementById("pomodoro-mode-label");
+  pomoStartBtn = document.getElementById("pomodoro-start-pause");
+  pomoResetBtn = document.getElementById("pomodoro-reset");
+
+  if (!pomoTimeEl || !pomoModeLabelEl || !pomoStartBtn || !pomoResetBtn) return;
+
+  updatePomodoroDisplay();
+
+  pomoStartBtn.addEventListener("click", () => {
+    if (pomoRunning) {
+      pausePomodoro();
+    } else {
+      startPomodoro();
+    }
+  });
+
+  pomoResetBtn.addEventListener("click", () => {
+    resetPomodoro();
+  });
+
+  const pills = document.querySelectorAll(".pomodoro-pill");
+  pills.forEach((pill) => {
+    pill.addEventListener("click", () => {
+      const preset = pill.dataset.preset || "25-5";
+      const [w, b] = preset.split("-").map(Number);
+      pomoWork = w * 60;
+      pomoBreak = b * 60;
+      resetPomodoro();
+
+      pills.forEach((p) => p.classList.remove("pomodoro-pill-active"));
+      pill.classList.add("pomodoro-pill-active");
+    });
+  });
 }
 
 // ---------- Init ----------
 
 window.addEventListener("DOMContentLoaded", () => {
-  daysContainer = document.getElementById("calendar-days");
-  monthLabel = document.getElementById("calendar-month-label");
-  detailContainer = document.getElementById("calendar-day-detail");
-
-  setupInputsAndCalendarNav();
-  setupRealtime();
-  renderCalendar();
+  setupNav();
+  setupRealtimeTasks();
+  setupTaskInputs();
+  setupDayPlanner();
+  setupPomodoro();
 });

@@ -3,651 +3,282 @@
 <head>
   <meta charset="UTF-8" />
   <title>Pendientes Cozy — Vianey & Alexis</title>
-  <link rel="icon" type="image/png" href="favicon.png">
 
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --bg: #f5efe6;
-      --bg-card: #fff7f0;
-      --text-main: #3b3b3b;
-      --accent: #c28b6e;
-      --vianey: #f9d9e5;
-      --alexis: #d9e8ff;
-      --juntos: #e7ddff;
-      --shadow-soft: 0 12px 25px rgba(0, 0, 0, 0.08);
-      --radius: 20px;
-    }
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.png" />
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+  <!-- Fuente -->
+  <link
+    href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap"
+    rel="stylesheet"
+  />
 
-    body {
-  min-height: 100vh;
-  background: radial-gradient(circle at top, #fdf3e7 0, #f5efe6 40%, #ebdfd1 100%);
-  font-family: "Poppins", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  color: var(--text-main);
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  padding: 2.5rem 0 3rem; /* 👉 sin padding lateral, solo arriba/abajo */
-}
-
-
-   .board {
-  width: 100%;
-  max-width: 1280px;          /* 👉 un poco más ancho */
-  margin: 0 auto;             /* 👉 aseguramos que quede centrado */
-  background: rgba(255, 247, 240, 0.92);
-  border-radius: 28px;
-  box-shadow: var(--shadow-soft);
-  padding: 2rem 3rem 2.5rem;  /* 👉 un pelín más de aire dentro */
-  backdrop-filter: blur(10px);
-  border: 1px solid rgba(255, 255, 255, 0.7);
-}
-
-
-    .board-header {
-      display: flex;
-      flex-direction: column;
-      gap: 0.25rem;
-      margin-bottom: 1.8rem;
-    }
-
-    .board-title {
-      font-size: 1.6rem;
-      font-weight: 600;
-      letter-spacing: 0.04em;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .board-title span.heart {
-      font-size: 1.4rem;
-    }
-
-    .board-subtitle {
-      font-size: 0.9rem;
-      color: #7a6b5b;
-    }
-
-    .chips {
-      margin-top: 0.4rem;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.4rem;
-    }
-
-    .chip {
-      font-size: 0.7rem;
-      padding: 0.15rem 0.6rem;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.9);
-      border: 1px dashed rgba(194, 139, 110, 0.5);
-      color: #7a6b5b;
-    }
-
-   .grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(360px, 1fr)); /* 👉 dos columnas más anchas */
-  column-gap: 3rem;   /* 👉 más espacio entre rosa y azul */
-  row-gap: 2.2rem;    /* 👉 espacio cómodo con el morado de abajo */
-  align-items: flex-start;
-}
-@media (max-width: 900px) {
-  .grid {
-    grid-template-columns: 1fr;  /* 👉 en cel, una columna debajo de otra */
-    gap: 1.5rem;
-  }
-
-  .card-juntos {
-    max-width: 100%;
-    justify-self: stretch;
-  }
-}
-
-
-    .card {
-      background: var(--bg-card);
-      border-radius: var(--radius);
-      padding: 1.2rem 1.2rem 1rem;
-      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.9);
-      display: flex;
-      flex-direction: column;
-      gap: 0.6rem;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .card::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      opacity: 0.3;
-      pointer-events: none;
-      background-image:
-        radial-gradient(circle at 10% 0%, rgba(255, 255, 255, 0.95) 0, transparent 45%),
-        radial-gradient(circle at 90% 100%, rgba(255, 255, 255, 0.9) 0, transparent 55%);
-    }
-
-    .card-header {
-      position: relative;
-      z-index: 1;
-    }
-
-    .label {
-      font-size: 0.75rem;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-      color: #8b6c55;
-      margin-bottom: 0.1rem;
-    }
-
-    .name {
-      font-size: 1.15rem;
-      font-weight: 600;
-      display: flex;
-      align-items: baseline;
-      gap: 0.35rem;
-    }
-
-    .name span.small {
-      font-size: 0.8rem;
-      font-weight: 400;
-      color: #7a6b5b;
-    }
-
-    .mood {
-      font-size: 0.75rem;
-      color: #9b8470;
-    }
-
-    .card-vianey {
-      background: linear-gradient(135deg, #fef5fb, var(--vianey));
-    }
-
-    .card-alexis {
-      background: linear-gradient(135deg, #f3f7ff, var(--alexis));
-    }
-
-    .card-juntos {
-      background: linear-gradient(135deg, #f8f4ff, var(--juntos));
-      grid-column: 1 / -1;
-      max-width: 520px;
-      justify-self: center;
-    }
-
-    .card-tag {
-      font-size: 0.7rem;
-      padding: 0.15rem 0.55rem;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.8);
-      color: #7a6b5b;
-      display: inline-flex;
-      align-items: center;
-      gap: 0.25rem;
-      margin-top: 0.15rem;
-    }
-
-    .card-tag-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: var(--accent);
-    }
-
-    /* -------- LISTAS DE TAREAS -------- */
-
-    .tasks {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      margin-top: 0.5rem;
-    }
-
-    .task-list {
-      list-style: none;
-      margin: 0;
-      padding: 0;
-      max-height: 210px;
-      overflow-y: auto;
-    }
-
-    .task-item {
-      font-size: 0.9rem;
-      padding: 0.35rem 0.7rem;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.92);
-      border: 1px solid rgba(180, 150, 120, 0.4);
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 0.4rem;
-      margin-bottom: 0.25rem;
-      cursor: pointer;
-      transition: background 0.15s ease, transform 0.1s ease, opacity 0.15s ease;
-    }
-
-    .task-item:hover {
-      transform: translateY(-1px);
-      background: #fffdfa;
-    }
-
-    .task-item.done {
-      opacity: 0.6;
-      text-decoration: line-through;
-    }
-
-    .task-text {
-      flex: 1;
-      line-height: 1.3;
-      overflow: hidden;
-      white-space: normal;
-      overflow-wrap: anywhere;
-      display: -webkit-box;
-      -webkit-line-clamp: 2;
-      -webkit-box-orient: vertical;
-    }
-
-    .task-delete {
-      border: none;
-      background: transparent;
-      cursor: pointer;
-      font-size: 1.05rem;
-      line-height: 1;
-      padding: 0;
-      opacity: 0.6;
-    }
-
-    .task-delete:hover {
-      opacity: 1;
-    }
-
-    .task-input-row {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      gap: 0.5rem;
-      margin-top: 0.25rem;
-    }
-
-    .task-input {
-      flex: 1;
-      border-radius: 999px;
-      border: 1px dashed rgba(180, 150, 120, 0.7);
-      padding: 0.45rem 0.8rem;
-      font-family: inherit;
-      font-size: 0.85rem;
-      background: rgba(255, 255, 255, 0.9);
-      outline: none;
-      transition: box-shadow 0.2s ease, border-color 0.2s ease, background 0.2s ease;
-    }
-
-    .task-input::placeholder {
-      color: #b6a69a;
-    }
-
-    .task-input:focus {
-      border-color: var(--accent);
-      box-shadow: 0 0 0 2px rgba(194, 139, 110, 0.28);
-      background: #fffdfa;
-    }
-
-    .task-add {
-      border-radius: 999px;
-      border: none;
-      padding: 0 0.9rem;
-      font-size: 1.1rem;
-      background: #f0d4bf;
-      color: #5e4632;
-      cursor: pointer;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .task-add:hover {
-      filter: brightness(1.03);
-    }
-
-    .task-add:active {
-      transform: translateY(1px);
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
-    }
-
-    .footer-note {
-      margin-top: 1.8rem;
-      font-size: 0.75rem;
-      color: #8f7b68;
-      text-align: right;
-      opacity: 0.8;
-    }
-
-    @media (max-width: 640px) {
-      body {
-        padding: 1.5rem 0.75rem 2.5rem;
-      }
-
-      .board {
-        padding: 1.6rem 1.3rem 2rem;
-      }
-
-      .board-title {
-        font-size: 1.3rem;
-      }
-
-      .task-input-row {
-        flex-direction: column;
-      }
-
-      .task-add {
-        width: 100%;
-        padding: 0.45rem 0.9rem;
-      }
-    }
-  </style>
+  <!-- Estilos -->
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <main class="board">
-    <header class="board-header">
-      <h1 class="board-title">
-        Nuestro mini board cozy
-        <span class="heart">✿</span>
-      </h1>
-      <p class="board-subtitle">
-        Espacio seguro para ir tirando pendientes, ideas random y cositas que no queremos olvidar.
-      </p>
-      <div class="chips">
-        <span class="chip">to-do suaves</span>
-        <span class="chip">cosas de la semana</span>
-        <span class="chip">planes futuros</span>
+  <div class="app-shell">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-logo">
+        <span class="logo-dot"></span>
+        <span class="logo-text">V&A</span>
       </div>
-    </header>
 
-    <section class="grid">
-      <!-- Columna Vianey -->
-      <article class="card card-vianey">
-        <div class="card-header">
-          <p class="label">Lista</p>
-          <h2 class="name">Vianey <span class="small">· cosas mías</span></h2>
-          <p class="mood">Pendientes solo tuyos: escuela, trabajo, self-care, etc.</p>
-          <div class="card-tag">
-            <span class="card-tag-dot"></span>
-            modo enfoque suave
+      <nav class="sidebar-nav">
+        <button class="nav-item active" data-screen="todo">
+          <span class="nav-icon">✅</span>
+          <span class="nav-label">To-do</span>
+        </button>
+        <button class="nav-item" data-screen="calendar">
+          <span class="nav-icon">📅</span>
+          <span class="nav-label">Calendario</span>
+        </button>
+        <button class="nav-item" data-screen="day">
+          <span class="nav-icon">🕒</span>
+          <span class="nav-label">Día</span>
+        </button>
+        <button class="nav-item" data-screen="pomodoro">
+          <span class="nav-icon">⏱️</span>
+          <span class="nav-label">Pomodoro</span>
+        </button>
+      </nav>
+    </aside>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="app-content">
+      <!-- PANTALLA 1: TO-DO BOARD -->
+      <section class="screen screen-todo active">
+        <div class="board">
+          <header class="board-header">
+            <h1 class="board-title">
+              Nuestro mini board cozy
+              <span class="heart">✿</span>
+            </h1>
+            <p class="board-subtitle">
+              Espacio seguro para ir tirando pendientes, ideas random y cositas que no queremos olvidar.
+            </p>
+            <div class="chips">
+              <span class="chip">to-do suaves</span>
+              <span class="chip">cosas de la semana</span>
+              <span class="chip">planes futuros</span>
+            </div>
+          </header>
+
+          <section class="grid">
+            <!-- Vianey -->
+            <article class="card card-vianey">
+              <div class="card-header">
+                <p class="label">Lista</p>
+                <h2 class="name">Vianey <span class="small">· cosas mías</span></h2>
+                <p class="mood">Pendientes solo tuyos: escuela, trabajo, self-care, etc.</p>
+                <div class="card-tag">
+                  <span class="card-tag-dot"></span>
+                  modo enfoque suave
+                </div>
+              </div>
+
+              <div class="tasks" data-column="vianey">
+                <ul class="task-list"></ul>
+
+                <div class="task-input-row">
+                  <input
+                    type="text"
+                    class="task-input"
+                    data-column="vianey"
+                    placeholder="Escribe un pendiente y toca el botón ✨"
+                  />
+                  <button
+                    type="button"
+                    class="task-add"
+                    data-column="vianey"
+                  >+</button>
+                </div>
+
+                <div class="task-meta-row">
+                  <label class="task-date-label">
+                    Fecha límite
+                    <input type="date" class="task-date" data-column="vianey" />
+                  </label>
+                </div>
+              </div>
+            </article>
+
+            <!-- Alexis -->
+            <article class="card card-alexis">
+              <div class="card-header">
+                <p class="label">Lista</p>
+                <h2 class="name">Alexis <span class="small">· cositas suyas</span></h2>
+                <p class="mood">
+                  Pendientes que son más de él: proyectos, cosas que le quieres recordar, etc.
+                </p>
+                <div class="card-tag">
+                  <span class="card-tag-dot"></span>
+                  notas para él
+                </div>
+              </div>
+
+              <div class="tasks" data-column="alexis">
+                <ul class="task-list"></ul>
+
+                <div class="task-input-row">
+                  <input
+                    type="text"
+                    class="task-input"
+                    data-column="alexis"
+                    placeholder="Pendiente para él y botón ✨"
+                  />
+                  <button
+                    type="button"
+                    class="task-add"
+                    data-column="alexis"
+                  >+</button>
+                </div>
+
+                <div class="task-meta-row">
+                  <label class="task-date-label">
+                    Fecha límite
+                    <input type="date" class="task-date" data-column="alexis" />
+                  </label>
+                </div>
+              </div>
+            </article>
+
+            <!-- Juntos -->
+            <article class="card card-juntos">
+              <div class="card-header">
+                <p class="label">Lista</p>
+                <h2 class="name">Juntos <span class="small">· nosotros dos</span></h2>
+                <p class="mood">
+                  Planes, pendientes y sueños compartidos. Aquí van las cosas de team V&A.
+                </p>
+                <div class="card-tag">
+                  <span class="card-tag-dot"></span>
+                  mood pareja
+                </div>
+              </div>
+
+              <div class="tasks" data-column="juntos">
+                <ul class="task-list"></ul>
+
+                <div class="task-input-row">
+                  <input
+                    type="text"
+                    class="task-input"
+                    data-column="juntos"
+                    placeholder="Plan juntos + botón ✨"
+                  />
+                  <button
+                    type="button"
+                    class="task-add"
+                    data-column="juntos"
+                  >+</button>
+                </div>
+
+                <div class="task-meta-row">
+                  <label class="task-date-label">
+                    Fecha límite
+                    <input type="date" class="task-date" data-column="juntos" />
+                  </label>
+                </div>
+              </div>
+            </article>
+          </section>
+
+          <p class="footer-note">
+            Toca una tarea para marcarla hecha. La ✕ la borra. Se sincroniza con Firebase para que ambos lo vean.
+          </p>
+        </div>
+      </section>
+
+      <!-- PANTALLA 2: CALENDARIO (por ahora simple) -->
+      <section class="screen screen-calendar">
+        <div class="board board-simple">
+          <header class="board-header">
+            <h1 class="board-title">
+              Calendario cozy
+              <span class="heart">📅</span>
+            </h1>
+            <p class="board-subtitle">
+              Aquí luego conectamos tus pendientes con fechas. Por ahora es solo un espacio para ver el mes.
+            </p>
+          </header>
+
+          <div class="calendar-placeholder">
+            <p class="calendar-placeholder-text">
+              Próximamente: calendario con puntitos de colores para Vianey, Alexis y Juntos ✨
+            </p>
           </div>
         </div>
-        <div class="tasks" data-column="vianey">
-  <ul class="task-list"></ul>
+      </section>
 
-  <div class="task-input-row">
-    <input
-      type="text"
-      class="task-input"
-      data-column="vianey"
-      placeholder="Escribe un pendiente y toca el botón ✨" />
-    <button
-      type="button"
-      class="task-add"
-      data-column="vianey">+</button>
-  </div>
+      <!-- PANTALLA 3: PLANNING DIARIO -->
+      <section class="screen screen-day">
+        <div class="board board-simple">
+          <header class="board-header">
+            <h1 class="board-title">
+              Planning diario
+              <span class="heart">🕒</span>
+            </h1>
+            <p class="board-subtitle">
+              Organiza tu día por horas. Se guarda en esta compu para que puedas irlo ajustando suavecito.
+            </p>
+          </header>
 
-  <div class="task-meta-row">
-    <label class="task-date-label">
-      Fecha límite
-      <input type="date" class="task-date" data-column="vianey" />
-    </label>
-  </div>
-</div>
+          <div id="day-planner" class="day-planner"></div>
+        </div>
+      </section>
 
-      </article>
+      <!-- PANTALLA 4: POMODORO -->
+      <section class="screen screen-pomodoro">
+        <div class="board board-simple board-center">
+          <header class="board-header">
+            <h1 class="board-title">
+              Pomodoro cozy
+              <span class="heart">⏱️</span>
+            </h1>
+            <p class="board-subtitle">
+              Bloques de enfoque suave + descansos chiquitos para no morir en el intento.
+            </p>
+          </header>
 
-      <!-- Columna Alexis -->
-      <article class="card card-alexis">
-        <div class="card-header">
-          <p class="label">Lista</p>
-          <h2 class="name">Alexis <span class="small">· cositas suyas</span></h2>
-          <p class="mood">Pendientes que son más de él: proyectos, cosas que le quieres recordar, etc.</p>
-          <div class="card-tag">
-            <span class="card-tag-dot"></span>
-            notas para él
+          <div class="pomodoro">
+            <div class="pomodoro-timer">
+              <div id="pomodoro-mode-label" class="pomodoro-label">Enfoque</div>
+              <div id="pomodoro-time" class="pomodoro-time">25:00</div>
+            </div>
+
+            <div class="pomodoro-controls">
+              <button type="button" id="pomodoro-start-pause" class="pomodoro-btn pomodoro-btn-primary">
+                Iniciar
+              </button>
+              <button type="button" id="pomodoro-reset" class="pomodoro-btn">
+                Reiniciar
+              </button>
+            </div>
+
+            <div class="pomodoro-options">
+              <button type="button" data-preset="25-5" class="pomodoro-pill pomodoro-pill-active">
+                25 / 5
+              </button>
+              <button type="button" data-preset="50-10" class="pomodoro-pill">
+                50 / 10
+              </button>
+              <button type="button" data-preset="15-3" class="pomodoro-pill">
+                15 / 3
+              </button>
+            </div>
+
+            <p class="pomodoro-note">
+              Cuando termine un bloque de enfoque, pasa solo a descanso y luego regresa a focus ♡
+            </p>
           </div>
         </div>
-        <div class="tasks" data-column="alexis">
-  <ul class="task-list"></ul>
-
-  <div class="task-input-row">
-    <input
-      type="text"
-      class="task-input"
-      data-column="alexis"
-      placeholder="Pendiente para él y botón ✨" />
-    <button
-      type="button"
-      class="task-add"
-      data-column="alexis">+</button>
+      </section>
+    </main>
   </div>
 
-  <div class="task-meta-row">
-    <label class="task-date-label">
-      Fecha límite
-      <input type="date" class="task-date" data-column="alexis" />
-    </label>
-  </div>
-</div>
-
-      </article>
-
-      <!-- Columna Juntos -->
-      <article class="card card-juntos">
-        <div class="card-header">
-          <p class="label">Lista</p>
-          <h2 class="name">Juntos <span class="small">· nosotros dos</span></h2>
-          <p class="mood">Planes, pendientes y sueños compartidos. Aquí van las cosas de team V&A.</p>
-          <div class="card-tag">
-            <span class="card-tag-dot"></span>
-            mood pareja
-          </div>
-        </div>
-        <div class="tasks" data-column="juntos">
-  <ul class="task-list"></ul>
-
-  <div class="task-input-row">
-    <input
-      type="text"
-      class="task-input"
-      data-column="juntos"
-      placeholder="Plan juntos + botón ✨" />
-    <button
-      type="button"
-      class="task-add"
-      data-column="juntos">+</button>
-  </div>
-
-  <div class="task-meta-row">
-    <label class="task-date-label">
-      Fecha límite
-      <input type="date" class="task-date" data-column="juntos" />
-    </label>
-  </div>
-</div>
-
-        </div>
-      </article>
-    </section>
-
-    <p class="footer-note">
-      Toca una tarea para marcarla hecha. La ✕ la borra. Se sincroniza con Firebase para que ambos lo vean.
-    </p>
-  </main>
-
-  <!-- Script con Firebase + Firestore -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-    import {
-      getFirestore,
-      collection,
-      addDoc,
-      query,
-      orderBy,
-      onSnapshot,
-      updateDoc,
-      deleteDoc,
-      doc,
-      serverTimestamp
-    } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
-
-    // Configuración de tu app (la que te dio Firebase)
-    const firebaseConfig = {
-      apiKey: "AIzaSyCddnh4gdFiU0E-FN9erPd0BT-jWAN6iM",
-      authDomain: "pendientes-cozy.firebaseapp.com",
-      projectId: "pendientes-cozy",
-      storageBucket: "pendientes-cozy.firebasestorage.app",
-      messagingSenderId: "677687685606",
-      appId: "1:677687685606:web:788d0104efcc7fff9b6627"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getFirestore(app);
-
-    const COLUMNS = ["vianey", "alexis", "juntos"];
-
-    // Estructura en memoria agrupada por columna
-    const tasksByColumn = {
-      vianey: [],
-      alexis: [],
-      juntos: []
-    };
-
-    function renderColumn(column) {
-      const columnWrapper = document.querySelector(`.tasks[data-column="${column}"]`);
-      if (!columnWrapper) return;
-
-      const listEl = columnWrapper.querySelector(".task-list");
-      listEl.innerHTML = "";
-
-      tasksByColumn[column].forEach((task) => {
-        const li = document.createElement("li");
-        li.className = "task-item";
-        if (task.done) li.classList.add("done");
-
-        const span = document.createElement("span");
-        span.className = "task-text";
-        span.textContent = task.text;
-
-        const delBtn = document.createElement("button");
-        delBtn.type = "button";
-        delBtn.className = "task-delete";
-        delBtn.textContent = "×";
-
-        li.appendChild(span);
-        li.appendChild(delBtn);
-
-        // Toggle done
-        li.addEventListener("click", async () => {
-          try {
-            await updateDoc(doc(db, "tasks", task.id), { done: !task.done });
-          } catch (e) {
-            console.error("Error al actualizar tarea", e);
-          }
-        });
-
-        // Borrar sin hacer toggle
-        delBtn.addEventListener("click", async (e) => {
-          e.stopPropagation();
-          try {
-            await deleteDoc(doc(db, "tasks", task.id));
-          } catch (e) {
-            console.error("Error al borrar tarea", e);
-          }
-        });
-
-        listEl.appendChild(li);
-      });
-    }
-
-    function renderAll() {
-      COLUMNS.forEach(renderColumn);
-    }
-
-    // Escucha en tiempo real de la colección "tasks"
-    function setupRealtime() {
-      const tasksRef = collection(db, "tasks");
-      const q = query(tasksRef, orderBy("createdAt", "asc"));
-
-      onSnapshot(q, (snapshot) => {
-        tasksByColumn.vianey = [];
-        tasksByColumn.alexis = [];
-        tasksByColumn.juntos = [];
-
-        snapshot.forEach((docSnap) => {
-          const data = docSnap.data();
-          if (!COLUMNS.includes(data.column)) return;
-
-          tasksByColumn[data.column].push({
-            id: docSnap.id,
-            text: data.text,
-            done: !!data.done
-          });
-        });
-
-        renderAll();
-      });
-    }
-
-    async function addTask(column, text) {
-      const tasksRef = collection(db, "tasks");
-      try {
-        await addDoc(tasksRef, {
-          column,
-          text,
-          done: false,
-          createdAt: serverTimestamp()
-        });
-      } catch (e) {
-        console.error("Error al agregar tarea", e);
-      }
-    }
-
-    window.addEventListener("DOMContentLoaded", () => {
-      setupRealtime();
-
-      // Enter sigue funcionando (para compu)
-      document.querySelectorAll(".task-input").forEach((input) => {
-        const column = input.dataset.column;
-        input.addEventListener("keydown", async (e) => {
-          if (e.key === "Enter") {
-            e.preventDefault();
-            const value = input.value.trim();
-            if (!value) return;
-            await addTask(column, value);
-            input.value = "";
-          }
-        });
-      });
-
-      // Botón ➕ (para cel/computadora)
-      document.querySelectorAll(".task-add").forEach((btn) => {
-        const column = btn.dataset.column;
-        const input = document.querySelector(`.task-input[data-column="${column}"]`);
-
-        btn.addEventListener("click", async () => {
-          if (!input) return;
-          const value = input.value.trim();
-          if (!value) return;
-          await addTask(column, value);
-          input.value = "";
-          input.focus();
-        });
-      });
-    });
-  </script>
+  <!-- Lógica de la app -->
+  <script type="module" src="app.js"></script>
 </body>
 </html>
