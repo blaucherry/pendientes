@@ -203,16 +203,70 @@
               Aquí luego conectamos tus pendientes con fechas. Por ahora es solo un espacio para ver el mes.
             </p>
           </header>
+<!-- PANTALLA 2: CALENDARIO -->
+<section class="screen screen--calendar">
+  <div class="board board-simple">
+    <header class="board-header">
+      <h1 class="board-title">
+        Calendario cozy
+        <span class="heart">📅</span>
+      </h1>
+      <p class="board-subtitle">
+        Agenda reuniones, citas y planes importantes para Vianey, Alexis o los dos.
+      </p>
+    </header>
 
-          <div class="calendar-placeholder">
-            <p class="calendar-placeholder-text">
-              Próximamente: calendario con puntitos de colores para Vianey, Alexis y Juntos ✨
-            </p>
-          </div>
+    <section class="calendar-section">
+      <div class="calendar-header">
+        <div>
+          <h2 id="calendar-month-label" class="calendar-title"></h2>
+          <p class="calendar-subtitle">
+            Toca un día para ver qué hay o agregar algo nuevo ✨
+          </p>
         </div>
-      </section>
 
-      <!-- PANTALLA 3: PLANNING DIARIO -->
+        <div class="calendar-nav">
+          <button type="button" class="calendar-nav-btn" data-cal-prev>‹</button>
+          <button type="button" class="calendar-nav-btn calendar-nav-btn--today" data-cal-today>Hoy</button>
+          <button type="button" class="calendar-nav-btn" data-cal-next>›</button>
+        </div>
+      </div>
+
+      <div class="calendar-legend">
+        <span class="calendar-legend-item">
+          <span class="calendar-dot calendar-dot--vianey"></span> Vianey
+        </span>
+        <span class="calendar-legend-item">
+          <span class="calendar-dot calendar-dot--alexis"></span> Alexis
+        </span>
+        <span class="calendar-legend-item">
+          <span class="calendar-dot calendar-dot--juntos"></span> Juntos
+        </span>
+      </div>
+
+      <div class="calendar-grid">
+        <div class="calendar-weekdays">
+          <span class="calendar-weekday">L</span>
+          <span class="calendar-weekday">M</span>
+          <span class="calendar-weekday">M</span>
+          <span class="calendar-weekday">J</span>
+          <span class="calendar-weekday">V</span>
+          <span class="calendar-weekday">S</span>
+          <span class="calendar-weekday">D</span>
+        </div>
+
+        <div id="calendar-days" class="calendar-days"></div>
+      </div>
+
+      <div id="calendar-day-detail" class="calendar-day-detail">
+        <!-- JS rellena esto -->
+      </div>
+    </section>
+  </div>
+</section>
+
+<!-- PANTALLA 3: PLANNING DIARIO -->
+
       <section class="screen screen-day">
         <div class="board board-simple">
           <header class="board-header">
