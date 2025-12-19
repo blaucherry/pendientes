@@ -375,3 +375,262 @@ window.addEventListener("DOMContentLoaded", () => {
   setupDayPlanner();
   setupPomodoro();
 });
+
+// =============== CALENDARIO COZY ===============
+
+const monthLabel = document.getElementById("calendar-month-label");
+const daysContainer = document.getElementById("calendar-days");
+const dayDetail = document.getElementById("calendar-day-detail");
+
+if (monthLabel && daysContainer && dayDetail) {
+  const prevBtn = document.querySelector("[data-cal-prev]");
+  const nextBtn = document.querySelector("[data-cal-next]");
+  const todayBtn = document.querySelector("[data-cal-today]");
+
+  // mapa: "YYYY-MM-DD" -> [eventos...]
+  const eventsByDate = {};
+  let currentMonth = new Date();
+  currentMonth.setDate(1);
+
+  const formatKey = (date) => date.toISOString().slice(0, 10);
+
+  const prettyDate = (date) =>
+    date.toLocaleDateString("es-MX", {
+      weekday: "long",
+      day: "numeric",
+      month: "long",
+    });
+
+  function renderMonth() {
+    const monthName = currentMonth.toLocaleDateString("es-MX", {
+      month: "long",
+      year: "numeric",
+    });
+    monthLabel.textContent =
+      monthName.charAt(0).toUpperCase() + monthName.slice(1);
+
+    daysContainer.innerHTML = "";
+
+    const year = currentMonth.getFullYear();
+    const month = currentMonth.getMonth();
+    const firstDay = new Date(year, month, 1);
+    // Lunes = 0
+    const startWeekIdx = (firstDay.getDay() + 6) % 7;
+    const daysInMonth = new Date(year, month + 1, 0).getDate();
+    const todayKey = formatKey(new Date());
+
+    // huecos antes del día 1
+    for (let i = 0; i < startWeekIdx; i++) {
+      const blank = document.createElement("button");
+      blank.className = "calendar-day calendar-day--empty";
+      blank.disabled = true;
+      daysContainer.appendChild(blank);
+    }
+
+    for (let d = 1; d <= daysInMonth; d++) {
+      const date = new Date(year, month, d);
+      const key = formatKey(date);
+      const dayBtn = document.createElement("button");
+      dayBtn.className = "calendar-day";
+
+      if (key === todayKey) {
+        dayBtn.classList.add("calendar-day--today");
+      }
+
+      const numberSpan = document.createElement("span");
+      numberSpan.className = "calendar-day-number";
+      numberSpan.textContent = d;
+      dayBtn.appendChild(numberSpan);
+
+      const dots = document.createElement("div");
+      dots.className = "calendar-dots";
+
+      const dayEvents = eventsByDate[key] || [];
+      const hasV = dayEvents.some((e) => e.who === "vianey");
+      const hasA = dayEvents.some((e) => e.who === "alexis");
+      const hasJ = dayEvents.some((e) => e.who === "juntos");
+
+      function addDot(cls) {
+        const dot = document.createElement("span");
+        dot.className = `calendar-dot ${cls}`;
+        dots.appendChild(dot);
+      }
+
+      if (hasV) addDot("calendar-dot--vianey");
+      if (hasA) addDot("calendar-dot--alexis");
+      if (hasJ) addDot("calendar-dot--juntos");
+
+      if (dayEvents.length) {
+        dayBtn.classList.add("calendar-day--has-events");
+      }
+
+      dayBtn.appendChild(dots);
+
+      dayBtn.addEventListener("click", () => {
+        document
+          .querySelectorAll(".calendar-day--selected")
+          .forEach((el) => el.classList.remove("calendar-day--selected"));
+        dayBtn.classList.add("calendar-day--selected");
+        renderDayDetail(date);
+      });
+
+      daysContainer.appendChild(dayBtn);
+    }
+  }
+
+  function renderDayDetail(date) {
+    const key = formatKey(date);
+    const events = (eventsByDate[key] || []).slice();
+
+    dayDetail.innerHTML = "";
+
+    const title = document.createElement("h3");
+    title.className = "calendar-detail-title";
+    title.textContent = prettyDate(date);
+    dayDetail.appendChild(title);
+
+    if (!events.length) {
+      const empty = document.createElement("p");
+      empty.className = "calendar-empty";
+      empty.textContent = "Sin eventos todavía. Añade uno abajo ✨";
+      dayDetail.appendChild(empty);
+    } else {
+      const list = document.createElement("ul");
+      list.className = "calendar-event-list";
+
+      events.sort((a, b) => (a.time || "").localeCompare(b.time || ""));
+
+      events.forEach((ev) => {
+        const li = document.createElement("li");
+        li.className = "calendar-event";
+
+        const chip = document.createElement("span");
+        chip.className =
+          "calendar-event-chip " +
+          (ev.who === "vianey"
+            ? "chip-vianey"
+            : ev.who === "alexis"
+            ? "chip-alexis"
+            : ev.who === "juntos"
+            ? "chip-juntos"
+            : "chip-neutral");
+        chip.textContent =
+          ev.who === "vianey"
+            ? "Vianey"
+            : ev.who === "alexis"
+            ? "Alexis"
+            : ev.who === "juntos"
+            ? "Juntos"
+            : "Otro";
+
+        const text = document.createElement("span");
+        text.className = "calendar-event-text";
+        text.textContent = (ev.time ? `${ev.time} · ` : "") + ev.title;
+
+        const del = document.createElement("button");
+        del.type = "button";
+        del.className = "calendar-event-delete";
+        del.textContent = "×";
+        del.addEventListener("click", async () => {
+          try {
+            await deleteDoc(doc(db, "events", ev.id));
+          } catch (err) {
+            console.error("Error al borrar evento", err);
+          }
+        });
+
+        li.append(chip, text, del);
+        list.appendChild(li);
+      });
+
+      dayDetail.appendChild(list);
+    }
+
+    // formulario para agregar evento
+    const form = document.createElement("form");
+    form.className = "calendar-form";
+    form.innerHTML = `
+      <div class="calendar-form-row">
+        <input type="time" name="time" class="calendar-input calendar-input--time">
+        <input type="text" name="title" class="calendar-input" placeholder="Escribe la reunión o plan..." required>
+        <select name="who" class="calendar-input calendar-input--who">
+          <option value="vianey">Vianey</option>
+          <option value="alexis">Alexis</option>
+          <option value="juntos">Juntos</option>
+        </select>
+        <button type="submit" class="calendar-add-btn">Agregar</button>
+      </div>
+    `;
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const data = new FormData(form);
+      const title = (data.get("title") || "").trim();
+      if (!title) return;
+
+      const who = data.get("who") || "juntos";
+      const time = data.get("time") || "";
+
+      try {
+        await addDoc(collection(db, "events"), {
+          date: key,
+          title,
+          who,
+          time,
+          createdAt: serverTimestamp(),
+        });
+        form.reset();
+      } catch (err) {
+        console.error("Error al agregar evento", err);
+      }
+    });
+
+    dayDetail.appendChild(form);
+  }
+
+  // realtime de eventos
+  (function setupEventsRealtime() {
+    const ref = collection(db, "events");
+    const q = query(ref, orderBy("date"), orderBy("time"));
+
+    onSnapshot(q, (snap) => {
+      Object.keys(eventsByDate).forEach((k) => delete eventsByDate[k]);
+      snap.forEach((docSnap) => {
+        const data = docSnap.data();
+        if (!data.date) return;
+        const key = data.date;
+        if (!eventsByDate[key]) eventsByDate[key] = [];
+        eventsByDate[key].push({
+          id: docSnap.id,
+          title: data.title || "",
+          who: data.who || "juntos",
+          time: data.time || "",
+        });
+      });
+
+      renderMonth();
+    });
+  })();
+
+  // navegación de meses
+  prevBtn?.addEventListener("click", () => {
+    currentMonth.setMonth(currentMonth.getMonth() - 1);
+    renderMonth();
+  });
+
+  nextBtn?.addEventListener("click", () => {
+    currentMonth.setMonth(currentMonth.getMonth() + 1);
+    renderMonth();
+  });
+
+  todayBtn?.addEventListener("click", () => {
+    currentMonth = new Date();
+    currentMonth.setDate(1);
+    renderMonth();
+    renderDayDetail(new Date());
+  });
+
+  // inicio
+  renderMonth();
+  renderDayDetail(new Date());
+}
